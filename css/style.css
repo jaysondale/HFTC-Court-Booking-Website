@@ -15,3 +15,7 @@
     font-weight: normal;
 }
 
+.a-unavailable {
+    background-color: rgba(166,166,166,0.36);
+}
+

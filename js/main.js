@@ -117,35 +117,59 @@
                     let day = currDate.getDate();
                     let month = currDate.getMonth();
                     let year = currDate.getFullYear();
-                    let filter = {
-                        day: day,
-                        month: month,
-                        year: year,
-                        startTime: time
-                    };
-                    let filteredBookings = bookings.filter(function(item) {
-                        for (let key in filter) {
-                            if (item[key] === undefined || item[key] != filter[key]) {
-                                return false;
+                    let dayInPast = false;
+                    if (year >= rightNow.getFullYear()) {
+                        if (month >= rightNow.getMonth()) {
+                            if (day < rightNow.getDate()) {
+                                dayInPast = true;
+                            } else if (day === rightNow.getDate()) {
+                                let est = parseInt(time, 10);
+                                if (time.includes("pm") && est < 12) {
+                                    est += 12
+                                }
+                                if ((est + 4) < rightNow.getUTCHours()) {
+                                    dayInPast = true;
+                                }
                             }
                         }
-                        return true;
-                    });
-
-                    if (bookingType() === "tennis"){
-                        if (filteredBookings.length === 0) {
-                            $(row).append('<th class="p-1 content-cell"><a class="btn btn-block a-content a-available">Available</a></th>');
+                    }
+                    if (dayInPast) {
+                        if (bookingType() == "tennis") {
+                            $(row).append('<th class="p-1 content-cell"><a class="btn btn-block a-content a-unavailable">Unavailable</a></th>');
                         } else {
-                            $(row).append('<th class="p-1 content-cell"><a class="btn btn-block a-content a-booked">Booked</a></th>');
+                            $(row).append('<th class="p-1 content-cell"><a class="btn btn-block a-content a-unavailable">Unavailable</a><a class="btn btn-block a-content a-unavailable">Unavailable</a></th>');
                         }
                     } else {
-                        if (filteredBookings.length === 0) {
-                            $(row).append('<th class="p-1 content-cell"><a class="btn btn-block a-content a-available">Available</a><a class="btn btn-block a-content a-available">Available</a></th>');
-                        } else if (filteredBookings.length === 1 && filteredBookings[0]["b_type"] === "pickle") {
-                            $(row).append('<th class="p-1 content-cell"><a class="btn btn-block a-content a-available">Available</a><a class="btn btn-block a-content a-booked">Booked</a></th>');
+                        let filter = {
+                            day: day,
+                            month: month,
+                            year: year,
+                            startTime: time
+                        };
+                        let filteredBookings = bookings.filter(function(item) {
+                            for (let key in filter) {
+                                if (item[key] === undefined || item[key] != filter[key]) {
+                                    return false;
+                                }
+                            }
+                            return true;
+                        });
+
+                        if (bookingType() === "tennis"){
+                            if (filteredBookings.length === 0) {
+                                $(row).append('<th class="p-1 content-cell"><a class="btn btn-block a-content a-available">Available</a></th>');
+                            } else {
+                                $(row).append('<th class="p-1 content-cell"><a class="btn btn-block a-content a-booked">Booked</a></th>');
+                            }
                         } else {
-                            console.log(filteredBookings[0]);
-                            $(row).append('<th class="p-1 content-cell"><a class="btn btn-block a-content a-booked">Booked</a><a class="btn btn-block a-content a-booked">Booked</a></th>');
+                            if (filteredBookings.length === 0) {
+                                $(row).append('<th class="p-1 content-cell"><a class="btn btn-block a-content a-available">Available</a><a class="btn btn-block a-content a-available">Available</a></th>');
+                            } else if (filteredBookings.length === 1 && filteredBookings[0]["b_type"] === "pickle") {
+                                $(row).append('<th class="p-1 content-cell"><a class="btn btn-block a-content a-available">Available</a><a class="btn btn-block a-content a-booked">Booked</a></th>');
+                            } else {
+                                console.log(filteredBookings[0]);
+                                $(row).append('<th class="p-1 content-cell"><a class="btn btn-block a-content a-booked">Booked</a><a class="btn btn-block a-content a-booked">Booked</a></th>');
+                            }
                         }
                     }
                 }
