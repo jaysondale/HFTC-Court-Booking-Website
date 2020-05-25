@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <title>Haliburton Forest Tennis Club</title>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <!-- header -->
+        <div class="col-12">
+            <h2>HFTC Court Booking</h2>
+        </div>
+    </div>
+    <div class="row pb-4">
+        <div class="col-sm-3 pb-2 pb-sm-0 offset-sm-1 col-12">
+            <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                <label class="btn btn-secondary active">
+                    <input type="radio" name="booking-type" id="book-tennis" autocomplete="off" checked> Tennis
+                </label>
+                <label class="btn btn-secondary">
+                    <input type="radio" name="booking-type" id="book-pickle" autocomplete="off"> Pickleball
+                </label>
+            </div>
+        </div>
+        <div class="col-sm-3 ml-auto">
+            <p id="user-name" class="text-right">User Name</p>
+        </div>
+        <button class="col-sm-2 ml-sm-auto ml-3 col-3 btn btn-primary" type="button" id="sign-out-btn">Sign Out</button>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="table-responsive table-borderless">
+                <table id="booking-table" class="table text-center table-striped">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th> < </th>
+                            <th id="day-1">Monday</th>
+                            <th id="day-2">Tuesday</th>
+                            <th id="day-3">Wednesday</th>
+                            <th id="day-4">Thursday</th>
+                            <th id="day-5">Friday</th>
+                            <th id="day-6">Saturday</th>
+                            <th id="day-7">Sunday</th>
+                            <th> > </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th class="th-time">6am - 7am</th>
+                        </tr>
+                        <tr>
+                            <th class="th-time">7am - 8am</th>
+                        </tr>
+                        <tr>
+                            <th class="th-time">8am - 9am</th>
+                        </tr>
+                        <tr>
+                            <th class="th-time">9am - 10am</th>
+                        </tr>
+                        <tr>
+                            <th class="th-time">10am - 11am</th>
+                        </tr>
+                        <tr>
+                            <th class="th-time">11am - 12pm</th>
+                        </tr>
+                        <tr>
+                            <th class="th-time">12pm - 1pm</th>
+                        </tr>
+                        <tr>
+                            <th class="th-time">1pm - 2pm</th>
+                        </tr>
+                        <tr>
+                            <th class="th-time">2pm - 3pm</th>
+                        </tr>
+                        <tr>
+                            <th class="th-time">3pm - 4pm</th>
+                        </tr>
+                        <tr>
+                            <th class="th-time">4pm - 5pm</th>
+                        </tr>
+                        <tr>
+                            <th class="th-time">5pm - 6pm</th>
+                        </tr>
+                        <tr>
+                            <th class="th-time">6pm - 7pm</th>
+                        </tr>
+                        <tr>
+                            <th class="th-time">7pm - 8pm</th>
+                        </tr>
+                        <tr>
+                            <th class="th-time">8pm - 9pm</th>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="book-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4>Book Court</h4>
+            </div>
+            <div class="modal-body">
+                <p id="booking-info">Booking Info</p>
+            </div>
+            <div class="modal-footer">
+                <button id="book-btn" class="btn btn-primary" type="button">Book</button>
+                <button id="book-cancel" class="btn btn-secondary" type="button">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-app.js"></script>
+
+<!-- If you enabled Analytics in your project, add the Firebase SDK for Analytics -->
+<script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-analytics.js"></script>
+
+<!-- Add Firebase products that you want to use -->
+<script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-firestore.js"></script>
+<script src="node_modules/jquery/dist/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+
+<!-- Firebase -->
+<script type="text/javascript">
+
+    // Your web app's Firebase configuration
+    var firebaseConfig = {
+        apiKey: "AIzaSyBkzZCH2AxZbpbnwGJIaiHk8C5aR6_zQ2Q",
+        authDomain: "hftc-booking.firebaseapp.com",
+        databaseURL: "https://hftc-booking.firebaseio.com",
+        projectId: "hftc-booking",
+        storageBucket: "hftc-booking.appspot.com",
+        messagingSenderId: "370882375926",
+        appId: "1:370882375926:web:e9d0096797fb27d4aa3cd7",
+        measurementId: "G-X88C05269Z"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    firebase.analytics();
+
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+</script>
+<script src="js/main.js"></script>
+</body>
+</html>

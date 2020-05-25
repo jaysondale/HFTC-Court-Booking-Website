@@ -1,0 +1,17 @@
+.a-available {
+    background-color: rgba(108,255,93,0.51);
+}
+
+.a-available:hover {
+    background-color: rgba(108,255,93,0.91);
+}
+
+.a-booked {
+    background-color: rgba(255,230,139,0.51);
+}
+
+.a-content {
+    width: 100%;
+    font-weight: normal;
+}
+
