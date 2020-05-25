@@ -2,6 +2,6 @@
   "name": "HFTC",
   "version": "1.0.0",
   "dependencies": {
-    "firebase": "latest"
+    "jquery": "^3.5.1"
   }
 }
