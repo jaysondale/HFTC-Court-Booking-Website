@@ -3,7 +3,8 @@
     const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const typeConvert = {
         'tennis': 'Tennis',
-        'pickle': 'Pickleball'
+        'pickle_front': 'Pickleball-Front',
+        'pickle_back': 'Pickleball-Back'
     };
 
     // Hide success alert by default
@@ -51,8 +52,6 @@
             currentDate.setDate(currentDate.getDate() + 1);
         }
     };
-
-    console.log($('.table-loading-overlay').parent().css('height'));
 
     let isInPast = function (day, month, year, time) {
         let rightNow = new Date();
@@ -110,11 +109,16 @@
         let timeList = $(".th-time");
         let time = $(timeList[v_index]).text().split(" ")[0];
 
+        let b_type = "tennis";
+        if (bookingType() === 'pickle') {
+            b_type = (selected.index() === 0 ? 'pickle_front' : 'pickle_back')
+        }
+
         // Update field
-        $("#booking-info").text("Confirm booking on " + days[dayOfWeek] + " " + months[month] + " " + day + " at " + time);
+        $("#booking-info").text("Confirm " + typeConvert[b_type] + " booking on " + days[dayOfWeek] + " " + months[month] + " " + day + " at " + time);
 
         // Create booking object
-        let booking = new Booking(dayOfWeek, day, month, year, time, bookingType());
+        let booking = new Booking(dayOfWeek, day, month, year, time, b_type);
 
         $('#book-btn').unbind('click').bind('click', (function() {
             bookCourt(booking);
@@ -196,6 +200,8 @@
 
         $('.table-loading-overlay').show();
 
+        $('#success-alert').hide();
+
         // Retrieve current booking info
         let db = firebase.firestore();
 
@@ -249,6 +255,9 @@
                         let my_booking = '<a class="btn btn-block a-content a-my-booking">' + currentUser.displayName +'</a>';
                         let booked = '<a class="btn btn-block a-content a-booked">Booked</a>';
 
+                        let front_available = '<a class="btn btn-block a-content a-available">Front</a>';
+                        let back_available = '<a class="btn btn-block a-content a-available">Back</a>';
+
                         let usrUid = currentUser.uid;
                         if (bookingType() === "tennis"){
                             if (filteredBookings.length === 0) {
@@ -261,34 +270,32 @@
                                 }
                             }
                         } else {
-                            if (filteredBookings.length === 0) {
-                                $(row).append('<th class="p-1 content-cell">' + available + available + '</th>');
-                            } else if (filteredBookings.length === 1 && filteredBookings[0]["b_type"] === "pickle") {
-                                if (filteredBookings[0]["uid"] === usrUid) {
-                                    $(row).append('<th class="p-1 content-cell">' + available + my_booking + '</th>');
-                                } else {
-                                    $(row).append('<th class="p-1 content-cell">' + available + booked + '</th>');
+                            let str = front_available + back_available;
+                            if (filteredBookings.length === 1) {
+                                let b_type = filteredBookings[0]['b_type'];
+                                let bookedText = (filteredBookings[0]['uid'] === usrUid ? my_booking : booked);
+                                if (b_type === 'pickle_front') {
+                                    str = bookedText + back_available;
+                                } else if (b_type === 'pickle_back') {
+                                    str = front_available + bookedText;
+                                } else if (b_type === 'tennis') {
+                                    str = bookedText + bookedText;
                                 }
-                            } else {
-                                if (filteredBookings.length === 1){
-                                    if (filteredBookings[0]["uid"] === usrUid) {
-                                        $(row).append('<th class="p-1 content-cell">' + my_booking + my_booking + '</th>');
-                                    } else {
-                                        $(row).append('<th class="p-1 content-cell">' + booked + booked + '</th>');
+                            } else if (filteredBookings.length === 2) {
+                                let frontBooked = booked;
+                                let backBooked = booked;
+                                filteredBookings.forEach(booking => {
+                                    if (booking['uid'] === usrUid) {
+                                        if (booking['b_type'] === 'pickle_front') {
+                                            frontBooked = my_booking;
+                                        } else {
+                                            backBooked = my_booking;
+                                        }
                                     }
-                                } else {
-                                    let fb0uid = filteredBookings[0]["uid"];
-                                    let fb1uid = filteredBookings[1]["uid"];
-                                    if (fb0uid === usrUid && fb1uid === usrUid) {
-                                        $(row).append('<th class="p-1 content-cell">' + my_booking + my_booking + '</th>');
-                                    } else if (fb0uid === usrUid || fb1uid === usrUid){
-                                        $(row).append('<th class="p-1 content-cell">' + booked + my_booking + '</th>');
-                                    } else {
-                                        $(row).append('<th class="p-1 content-cell">' + booked + booked + '</th>');
-                                    }
-                                }
-
+                                });
+                                str = frontBooked + backBooked;
                             }
+                            $(row).append('<th class="p-1 content-cell">' + str + "</th>")
                         }
                     }
                 }
