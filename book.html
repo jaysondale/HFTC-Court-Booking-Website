@@ -7,15 +7,15 @@
     <title>Haliburton Forest Tennis Club</title>
 </head>
 <body>
+
 <div class="container">
-    <div class="row">
-        <!-- header -->
-        <div class="col-12">
-            <h2>HFTC Court Booking</h2>
+    <div class="row pb-4 pt-4">
+        <div class="col-md-1 col-12">
+            <a href="#">
+                <img class="img img-thumbnail" src="img/logo.jpg">
+            </a>
         </div>
-    </div>
-    <div class="row pb-4">
-        <div class="col-sm-3 pb-2 pb-sm-0 offset-sm-1 col-12">
+        <div class="col-sm-3 pb-2 pb-sm-0 col-12">
             <div class="btn-group btn-group-toggle" data-toggle="buttons">
                 <label class="btn btn-secondary active">
                     <input type="radio" name="booking-type" id="book-tennis" autocomplete="off" checked> Tennis
@@ -26,17 +26,37 @@
             </div>
         </div>
         <div class="col-sm-3 ml-auto">
-            <p id="user-name" class="text-right">User Name</p>
+            <h5 id="user-name" class="text-right">User Name</h5>
         </div>
-        <button class="col-sm-2 ml-sm-auto ml-3 col-3 btn btn-primary" type="button" id="sign-out-btn">Sign Out</button>
+        <div class="btn-group col-md-4 ml-sm-auto ml-3 col-12">
+            <button class="btn btn-outline-secondary" type="button" id="edit-btn">Edit Account</button>
+            <button class="btn btn-info" type="button" id="view-btn">View Bookings</button>
+            <button class="btn btn-primary" type="button" id="sign-out-btn">Sign Out</button>
+        </div>
+
+    </div>
+    <div class="row">
+        <div id="success-alert" class="alert alert-success col-sm-4 offset-sm-4 mr-sm-auto col-12 fade show" role="alert">
+            <span class="col-10" id="success-msg"></span>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
     </div>
     <div class="row">
         <div class="col-12">
             <div class="table-responsive table-borderless">
+                <div class="table-loading-overlay">
+                    <div class="table-loading-inner d-flex align-items-center justify-content-center">
+                        <div class="spinner-border" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
+                </div>
                 <table id="booking-table" class="table text-center table-striped">
                     <thead class="thead-dark">
                         <tr>
-                            <th> < </th>
+                            <th>&nbsp;</th>
                             <th id="day-1">Monday</th>
                             <th id="day-2">Tuesday</th>
                             <th id="day-3">Wednesday</th>
@@ -44,7 +64,6 @@
                             <th id="day-5">Friday</th>
                             <th id="day-6">Saturday</th>
                             <th id="day-7">Sunday</th>
-                            <th> > </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -117,6 +136,46 @@
     </div>
 </div>
 
+<div class="modal fade" id="view-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4>My Bookings</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div id="view-bookings-alert" class="alert fade show alert-success col-10 offset-1">
+                        <div class="row">
+                            <div class="col-10">
+                                <span class="align-middle">Booking removed!</span>
+                            </div>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-borderless">
+                    <table class="table text-center table-striped">
+                        <thead class="thead-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Start Time</th>
+                            <th>Type</th>
+                            <th>&nbsp;</th>
+                        </tr>
+                        </thead>
+                        <tbody id="view-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="view-close" class="btn btn-primary" type="button">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
 <script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-app.js"></script>
 
@@ -126,7 +185,7 @@
 <!-- Add Firebase products that you want to use -->
 <script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-firestore.js"></script>
-<script src="node_modules/jquery/dist/jquery.min.js"></script>
+<script src="js/jquery.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
 
 <!-- Firebase -->
@@ -150,6 +209,17 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
+</script>
+
+<!-- Full Height -->
+<script type="text/javascript">
+    let FullHeight = function() {
+        $('.full-height').css('height', $(window).height());
+        $(window).resize(() => {
+            $('.full-height').css('height', $(window).height());
+        });
+    };
+    FullHeight();
 </script>
 <script src="js/main.js"></script>
 </body>

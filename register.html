@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <title>Haliburton Forest Tennis Club</title>
+</head>
+<body>
+<div class="container">
+    <div class="row full-height justify-content-center align-items-center">
+        <form id="sign-up-form">
+            <div class="form-group row">
+                <div class="col-12 text-center">
+                    <h2>HFTC Member Sign-Up</h2>
+                </div>
+            </div>
+            <div class="form-group row pb-2">
+                <input type="text" name="fname" id="fname" class="col-sm-5 col-12 form-control" placeholder="First Name">
+                <input type="text" name="lname" id="lname" class="col-sm-6 col-12 offset-sm-1 form-control" placeholder="Last Name">
+            </div>
+            <div class="form-group row">
+                <input type="text" name="email" id="email" class="form-control" placeholder="Email">
+            </div>
+            <div class="form-group row">
+                <input type="password" name="password" id="password" class="form-control" placeholder="Password">
+            </div>
+            <div class="form-group row">
+                <button type="submit" class="btn btn-primary">Register</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-app.js"></script>
+
+<!-- If you enabled Analytics in your project, add the Firebase SDK for Analytics -->
+<script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-analytics.js"></script>
+
+<!-- Add Firebase products that you want to use -->
+<script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-firestore.js"></script>
+<script src="node_modules/jquery/dist/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script type="text/javascript">
+    let FullHeight = function() {
+        $('.full-height').css('height', $(window).height());
+        $(window).resize(() => {
+            $('.full-height').css('height', $(window).height());
+        });
+    };
+    FullHeight();
+</script>
+
+<!-- Firebase -->
+<script type="text/javascript">
+
+    // Your web app's Firebase configuration
+    var firebaseConfig = {
+        apiKey: "AIzaSyBkzZCH2AxZbpbnwGJIaiHk8C5aR6_zQ2Q",
+        authDomain: "hftc-booking.firebaseapp.com",
+        databaseURL: "https://hftc-booking.firebaseio.com",
+        projectId: "hftc-booking",
+        storageBucket: "hftc-booking.appspot.com",
+        messagingSenderId: "370882375926",
+        appId: "1:370882375926:web:e9d0096797fb27d4aa3cd7",
+        measurementId: "G-X88C05269Z"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    firebase.analytics();
+
+    const auth = firebase.auth();
+
+</script>
+<script src="js/auth.js"></script>
+
+</body>
+</html>

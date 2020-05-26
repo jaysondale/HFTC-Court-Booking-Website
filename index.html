@@ -3,27 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
     <title>Haliburton Forest Tennis Club</title>
 </head>
 <body>
 <div class="container">
-    <div class="row full-height justify-content-center align-items-center">
-        <form id="sign-in-form">
-            <div class="form-group row">
-                <div class="col-12 text-center">
-                    <h2>HFTC Member Login</h2>
-                </div>
+    <div class="row full-height">
+        <div class="col-12">
+            <div class="row d-flex justify-content-center align-items-center">
+                <form id="sign-in-form">
+                    <div class="form-group row">
+                        <div class="col-12 d-flex justify-content-center">
+                            <img class="img img-thumbnail" src="img/logo.jpg">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-12 text-center">
+                            <h2>Member Login</h2>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <input type="text" name="email" id="email" class="form-control" placeholder="Email">
+                    </div>
+                    <div class="form-group row">
+                        <input type="password" name="password" id="password" class="form-control" placeholder="Password">
+                    </div>
+                    <div class="form-group row">
+                        <button type="submit" class="btn btn-primary">Login</button>
+                    </div>
+                </form>
             </div>
-            <div class="form-group row">
-                <input type="text" name="email" id="email" class="form-control" placeholder="Email">
+            <div class="row pb-2 d-flex justify-content-center align-items-center fixed-bottom">
+                <span>If you are experiencing issues, contact Jayson Dale at jaysondale1@gmail.com.</span>
             </div>
-            <div class="form-group row">
-                <input type="password" name="password" id="password" class="form-control" placeholder="Password">
-            </div>
-            <div class="form-group row">
-                <button type="submit" class="btn btn-primary">Login</button>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
@@ -36,7 +49,7 @@
 <!-- Add Firebase products that you want to use -->
 <script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-firestore.js"></script>
-<script src="node_modules/jquery/dist/jquery.min.js"></script>
+<script src="js/jquery.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <script type="text/javascript">
     let FullHeight = function() {
@@ -67,7 +80,6 @@
     firebase.analytics();
 
     const auth = firebase.auth();
-    const db = firebase.firestore();
 
 </script>
 <script src="js/auth.js"></script>
