@@ -30,12 +30,19 @@
                         <input type="password" name="password" id="password" class="form-control" placeholder="Password">
                     </div>
                     <div class="form-group row">
-                        <button type="submit" class="btn btn-primary">Login</button>
+                        <div class="col-sm-6 col-12">
+                            <button type="submit" class="btn btn-primary">Login</button>
+                        </div>
+                        <div class="col-sm-6 ml-sm-auto col-12">
+                            <button id="reg-btn" type="button" class="btn btn-outline-secondary">Register</button>
+                        </div>
                     </div>
                 </form>
             </div>
             <div class="row pb-2 d-flex justify-content-center align-items-center fixed-bottom">
-                <span>If you are experiencing issues, contact Jayson Dale at jaysondale1@gmail.com.</span>
+                <div class="col-12 text-center">
+                    <span>If you are experiencing issues, contact Jayson Dale at </span><a href="mailto:jaysondale1@gmail.com">jaysondale1@gmail.com</a>
+                </div>
             </div>
         </div>
     </div>
@@ -60,6 +67,10 @@
         });
     };
     FullHeight();
+
+    $('#reg-btn').click(function() {
+        window.location = 'register.html'
+    })
 </script>
 
 <!-- Firebase -->
