@@ -8,13 +8,29 @@
     };
 
     // Hide success alert by default
-    $('#success-alert').hide();
     $('#view-bookings-alert').hide();
 
-    let displayAlert = function(msg) {
-        $('#success-msg').text(msg);
-        $('#success-alert').show();
+    let displayAlert = function(msg, isSuccess) {
+        let alert = $('#main-alert');
+        if (isSuccess) {
+            $(alert).addClass('alert-success')
+        } else {
+            $(alert.addClass('alert-danger'))
+        }
+        $('#alert-msg').text(msg);
+        $(alert).show();
     };
+
+    let hideAlert= function() {
+        let alert = $('#main-alert');
+        if ($(alert).hasClass('alert-success')) {
+            $(alert).removeClass('alert-success')
+        } else if ($(alert).hasClass('alert-danger')) {
+            $(alert).removeClass('alert-danger')
+        }
+        $(alert).hide();
+    };
+    hideAlert();
 
     // Firebase authentication
     firebase.auth().onAuthStateChanged(function(user) {
@@ -90,7 +106,6 @@
 
     // Display booking modal
     let displayBookingModal = function() {
-        $('#book-modal').modal('show');
 
         // Get coordinates of selection
         let selected = $(".cell-selected");
@@ -109,20 +124,45 @@
         let timeList = $(".th-time");
         let time = $(timeList[v_index]).text().split(" ")[0];
 
-        let b_type = "tennis";
-        if (bookingType() === 'pickle') {
-            b_type = (selected.index() === 0 ? 'pickle_front' : 'pickle_back')
-        }
+        // Check user booking limit
+        let db = firebase.firestore();
 
-        // Update field
-        $("#booking-info").text("Confirm " + typeConvert[b_type] + " booking on " + days[dayOfWeek] + " " + months[month] + " " + day + " at " + time);
+        let bookingLimit = db.collection('params').doc('booking-limit');
+        bookingLimit.get().then(function(doc) {
+            const lim = doc.get('hours');
 
-        // Create booking object
-        let booking = new Booking(dayOfWeek, day, month, year, time, b_type);
+            let currentUser = firebase.auth().currentUser;
 
-        $('#book-btn').unbind('click').bind('click', (function() {
-            bookCourt(booking);
-        }));
+            let bookingRef = db.collection('bookings');
+            let query = bookingRef.where('user', '==', currentUser.uid).where('year', '==', year).where('month', '==', month).where('day', '==', day);
+            let hours = (bookingType() === 'tennis' ? 1 : 0.5);
+            query.get().then(querySnapshot => {
+                querySnapshot.forEach(doc => {
+                    hours += (doc.get('bookingType') === 'tennis' ? 1 : 0.5);
+                });
+
+                if (hours > lim) {
+                    displayAlert('Unable to book court: You have already booked ' + lim + 'hrs of court time today!', false)
+                } else {
+                    let b_type = "tennis";
+                    if (bookingType() === 'pickle') {
+                        b_type = (selected.index() === 0 ? 'pickle_front' : 'pickle_back')
+                    }
+
+                    // Update field
+                    $("#booking-info").text("Confirm " + typeConvert[b_type] + " booking on " + days[dayOfWeek] + " " + months[month] + " " + day + " at " + time);
+
+                    // Create booking object
+                    let booking = new Booking(dayOfWeek, day, month, year, time, b_type);
+
+                    $('#book-btn').unbind('click').bind('click', (function() {
+                        bookCourt(booking);
+                    }));
+
+                    $('#book-modal').modal('show');
+                }
+            });
+        });
     };
 
     let closeBookModal = function () {
@@ -173,7 +213,7 @@
             $('.delete-btn').click(function() {
                 let selectedIndex = $(this).parent().parent().index();
                 let docIdToDelete = activeBookings[selectedIndex]['doc_id'];
-                activeBookings = activeBookings.splice(selectedIndex);
+                activeBookings.splice(selectedIndex, 1);
                 bookingRef.doc(docIdToDelete).delete().then(function() {
                     $('.booking-row')[selectedIndex].remove();
                     $('#view-bookings-alert').show();
@@ -200,7 +240,7 @@
 
         $('.table-loading-overlay').show();
 
-        $('#success-alert').hide();
+        hideAlert();
 
         // Retrieve current booking info
         let db = firebase.firestore();
@@ -344,7 +384,7 @@
 
         PopulateAvailability();
         // Display success alert
-        displayAlert(`Court booked for ${days[booking.dayOfWeek]} ${months[booking.month]} ${booking.day} at ${booking.startTime}.`)
+        displayAlert(`Court booked for ${days[booking.dayOfWeek]} ${months[booking.month]} ${booking.day} at ${booking.startTime}.`, true)
     }
 
 })(jQuery);
