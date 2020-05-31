@@ -27,10 +27,9 @@
             </div>
         </div>
         <div class="col-sm-3 ml-auto">
-            <h5 id="user-name" class="text-right">User Name</h5>
+            <h5 id="user-name" class="text-sm-right text-left">User Name</h5>
         </div>
-        <div class="btn-group col-md-4 ml-sm-auto ml-3 col-12">
-            <button class="btn btn-outline-secondary" type="button" id="edit-btn">Edit Account</button>
+        <div class="btn-group col-md-3 ml-sm-auto ml-3 col-12">
             <button class="btn btn-info" type="button" id="view-btn">View Bookings</button>
             <button class="btn btn-primary" type="button" id="sign-out-btn">Sign Out</button>
         </div>
@@ -177,40 +176,16 @@
     </div>
 </div>
 
-<!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
-<script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-app.js"></script>
-
-<!-- If you enabled Analytics in your project, add the Firebase SDK for Analytics -->
-<script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-analytics.js"></script>
-
-<!-- Add Firebase products that you want to use -->
-<script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-firestore.js"></script>
+<!-- update the version number as needed -->
+<script defer src="/__/firebase/7.14.6/firebase-app.js"></script>
+<!-- include only the Firebase features as you need -->
+<script defer src="/__/firebase/7.14.6/firebase-auth.js"></script>
+<script defer src="/__/firebase/7.14.6/firebase-firestore.js"></script>
+<script defer src="/__/firebase/7.14.6/firebase-functions.js"></script>
+<!-- initialize the SDK after all desired features are loaded -->
+<script defer src="/__/firebase/init.js"></script>
 <script src="js/jquery.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
-
-<!-- Firebase -->
-<script type="text/javascript">
-
-    // Your web app's Firebase configuration
-    var firebaseConfig = {
-        apiKey: "AIzaSyBkzZCH2AxZbpbnwGJIaiHk8C5aR6_zQ2Q",
-        authDomain: "hftc-booking.firebaseapp.com",
-        databaseURL: "https://hftc-booking.firebaseio.com",
-        projectId: "hftc-booking",
-        storageBucket: "hftc-booking.appspot.com",
-        messagingSenderId: "370882375926",
-        appId: "1:370882375926:web:e9d0096797fb27d4aa3cd7",
-        measurementId: "G-X88C05269Z"
-    };
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    firebase.analytics();
-
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-
-</script>
 
 <!-- Full Height -->
 <script type="text/javascript">
@@ -222,6 +197,6 @@
     };
     FullHeight();
 </script>
-<script src="js/main.js"></script>
+<script defer src="js/main.js"></script>
 </body>
 </html>

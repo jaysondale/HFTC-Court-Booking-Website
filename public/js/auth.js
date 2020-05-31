@@ -1,3 +1,5 @@
+let auth = firebase.auth();
+
 const si_form = document.querySelector('#sign-in-form');
 if (si_form != null){
     si_form.addEventListener('submit', (e) => {
