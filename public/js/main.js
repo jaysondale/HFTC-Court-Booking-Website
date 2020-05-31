@@ -135,10 +135,10 @@
 
             let bookingRef = db.collection('bookings');
             let query = bookingRef.where('user', '==', currentUser.uid).where('year', '==', year).where('month', '==', month).where('day', '==', day);
-            let hours = (bookingType() === 'tennis' ? 1 : 0.5);
+            let hours = 1;
             query.get().then(querySnapshot => {
                 querySnapshot.forEach(doc => {
-                    hours += (doc.get('bookingType') === 'tennis' ? 1 : 0.5);
+                    hours += 1;
                 });
 
                 if (hours > lim) {
