@@ -125,13 +125,20 @@
             <div class="modal-header">
                 <h4>Book Court</h4>
             </div>
-            <div class="modal-body">
-                <p id="booking-info">Booking Info</p>
-            </div>
-            <div class="modal-footer">
-                <button id="book-btn" class="btn btn-primary" type="button">Book</button>
-                <button id="book-cancel" class="btn btn-secondary" type="button">Cancel</button>
-            </div>
+            <form id="booking-form"></form>
+                <div class="modal-body">
+                    <p id="booking-info">Booking Info</p>
+                    <div id="booking-description-field" class="form-group row p-3">
+                        <label for="description">Event Description</label>
+                        <input type="text" name="description" id="description" class="form-control" placeholder="Event Description">
+                    </div>
+                    
+                </div>
+                <div class="modal-footer">
+                    <button id="book-btn" class="btn btn-primary" type="submit">Book</button>
+                    <button id="book-cancel" class="btn btn-secondary" type="button">Cancel</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
