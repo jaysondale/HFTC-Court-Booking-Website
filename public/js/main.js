@@ -1,6 +1,4 @@
 (function($){
-    firebase.functions().useFunctionsEmulator('http://localhost:5001') 
-
     let checkAdmin = async function() {
         return firebase.firestore().collection('params').doc('admin').get().then(snap => {
             if (snap.exists){
@@ -10,7 +8,7 @@
                 return false;
             }
         })
-    }
+    };
 
     let isAdmin = false;
     (async () => {
@@ -54,7 +52,23 @@
     // Firebase authentication
     firebase.auth().onAuthStateChanged(function(user) {
         if (user) {
-            $('#user-name').text("Hello, " + user.displayName);
+            let displayName = user.displayName;
+            if (displayName === null) {
+                db.collection("users").doc(user.uid).get().then(snap => {
+                    let data = snap.data();
+                    displayName = data["displayName"];
+                    $('#user-name').text("Hello, " + displayName);
+
+                    // Set user displayName in auth system
+                    user.updateProfile({
+                        displayName: displayName
+                    }).then(() => {
+                        console.log("User profile updated");
+                    })
+                })
+            } else {
+                $('#user-name').text("Hello, " + displayName);
+            }
         } else {
             window.location = "index.html"
         }
@@ -286,7 +300,7 @@
                    startTime: doc.get("startTime"),
                    description: doc.get("bookingDescription")
                 })
-            })
+            });
 
             // Get user bookings
             db.collection("bookings").get().then(function(querySnapshot){
