@@ -64,6 +64,7 @@
                         displayName: displayName
                     }).then(() => {
                         console.log("User profile updated");
+                        $('#user-name').text("Hello, " + displayName);
                     })
                 })
             } else {
