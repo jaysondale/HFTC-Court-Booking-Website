@@ -188,14 +188,14 @@
                             <div class="col-sm-3 col-12 text-right">
                                 <h5>Status</h5>
                             </div>
-                            <div class="col-sm-7 col-12">
-                                <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                                    <label id="enable-btn-label" class="btn btn-success">
-                                        <input type="radio" name="options" id="enable-btn" autocomplete="off"> Enable
-                                    </label>
-                                    <label id="disable-btn-label" class="btn btn-danger">
-                                        <input type="radio" name="options" id="disable-btn" autocomplete="off"> Disable
-                                    </label>
+                            <div id="radios" class="col-sm-7 col-12">
+                                <div class="custom-control custom-radio">
+                                    <input type="radio" id="enabled-radio" name="customRadio" class="custom-control-input">
+                                    <label class="custom-control-label" for="enabled-radio">Enabled</label>
+                                </div>
+                                <div class="custom-control custom-radio">
+                                    <input type="radio" id="disabled-radio" name="customRadio" class="custom-control-input">
+                                    <label class="custom-control-label" for="disabled-radio">Disabled</label>
                                 </div>
                             </div>
                         </div>
@@ -203,6 +203,22 @@
                     <div class="modal-footer">
                         <button id="view-save" class="btn btn-primary" type="button">Save</button>
                         <button id="view-close" class="btn btn-outline-secondary" type="button">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="delete-modal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4>Delete User</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p id="delete-message"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="confirm-delete" class="btn btn-danger" type="button">Delete</button>
+                        <button id="cancel-delete" class="btn btn-outline-secondary" type="button">Cancel</button>
                     </div>
                 </div>
             </div>
@@ -224,6 +240,7 @@
         <script type="text/javascript">
             jQuery('#booking-wrapper').hide();
             jQuery('#edit-modal').modal('hide');
+            jQuery('#delete-modal').modal('hide');
         </script>
     </body>
 </html>

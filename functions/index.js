@@ -1,20 +1,25 @@
 const functions = require('firebase-functions');
 const admin = require("firebase-admin");
 
-
 var serviceAccount = require("/Users/jaysondale/Downloads/hftc-booking-firebase-adminsdk-642o4-caea15177c.json");
 
+/*
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     databaseURL: "https://hftc-booking.firebaseio.com"
 });
+
+ */
+
+
+admin.initializeApp();
 
 const db = admin.firestore();
 
 exports.getUserData = functions.https.onCall(async (data, context) => {
     try{
         if (!context.auth) {
-            // throw new functions.https.HttpsError('unknown', "User is not authenticated");
+            throw new functions.https.HttpsError('unknown', "User is not authenticated");
         }
         console.log('User authenticated');
 
@@ -28,8 +33,9 @@ exports.getUserData = functions.https.onCall(async (data, context) => {
                 return null;
             }
         });
-        if (adminUids.includes(currentUid)) {
-            // throw new functions.https.HttpsError('unknown',"User is not admin user");
+
+        if (!adminUids.includes(currentUid)) {
+            throw new functions.https.HttpsError('unknown',"User is not admin user");
         }
         console.log('UID verified as admin');
 
@@ -75,7 +81,7 @@ exports.getUserData = functions.https.onCall(async (data, context) => {
 exports.updateUser = functions.https.onCall(async (data, context) => {
     try{
         if (!context.auth) {
-            // throw new functions.https.HttpsError('unknown', "User is not authenticated");
+            throw new functions.https.HttpsError('unknown', "User is not authenticated");
         }
         console.log('User authenticated');
 
@@ -89,8 +95,8 @@ exports.updateUser = functions.https.onCall(async (data, context) => {
                 return null;
             }
         });
-        if (adminUids.includes(currentUid)) {
-            // throw new functions.https.HttpsError('unknown',"User is not admin user");
+        if (!adminUids.includes(currentUid)) {
+            throw new functions.https.HttpsError('unknown',"User is not admin user");
         }
         console.log('UID verified as admin');
         let userData = data;
@@ -168,4 +174,54 @@ exports.updateUser = functions.https.onCall(async (data, context) => {
     } catch (er) {
         throw new functions.https.HttpsError('unknown',"There was an error trying to update user data. " + er);
     }
+});
+
+exports.deleteUser = functions.https.onCall(async (data, context) => {
+    try {
+        if (!context.auth) {
+            throw new functions.https.HttpsError('unknown', "User is not authenticated");
+        }
+        console.log('User authenticated');
+
+        // Validate user admin user
+        let currentUid = admin.auth.uid;
+        let adminUids = await db.collection('params').doc('admin').get().then(snap => {
+            if (snap) {
+                let data = snap.data();
+                return data['uid'];
+            } else {
+                return null;
+            }
+        });
+        if (!adminUids.includes(currentUid)) {
+            throw new functions.https.HttpsError('unknown', "User is not admin user");
+        }
+        console.log('UID verified as admin');
+
+        let uid = data.uid;
+
+        // Delete user record
+        console.log('Deleting user record');
+        // await admin.auth().deleteUser(uid);
+
+        // Delete user from database
+        console.log('Deleting user from database');
+        await db.collection('users').doc(uid).delete();
+
+        // Delete uid from admin if exists
+        if (adminUids.includes(uid)) {
+            console.log('Deleting from admin user list');
+            adminUids = adminUids.filter(el => {
+                return el !== uid;
+            });
+
+            // Reset uid list
+            await db.collection('params').doc('admin').set({
+                uid: adminUids
+            })
+        }
+    } catch (er) {
+        throw new functions.https.HttpsError('unknown', "There was an error trying to delete a user")
+    }
+
 });
