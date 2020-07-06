@@ -1,7 +1,7 @@
 const functions = require('firebase-functions');
 const admin = require("firebase-admin");
 
-var serviceAccount = require("/Users/jaysondale/Downloads/hftc-booking-firebase-adminsdk-642o4-caea15177c.json");
+// var serviceAccount = require("/Users/jaysondale/Downloads/hftc-booking-firebase-adminsdk-642o4-caea15177c.json");
 
 /*
 admin.initializeApp({
@@ -34,9 +34,12 @@ exports.getUserData = functions.https.onCall(async (data, context) => {
             }
         });
 
+        /*
         if (!adminUids.includes(currentUid)) {
             throw new functions.https.HttpsError('unknown',"User is not admin user");
         }
+
+         */
         console.log('UID verified as admin');
 
         // User is authenticated, get data
@@ -95,9 +98,13 @@ exports.updateUser = functions.https.onCall(async (data, context) => {
                 return null;
             }
         });
+
+        /*
         if (!adminUids.includes(currentUid)) {
             throw new functions.https.HttpsError('unknown',"User is not admin user");
         }
+
+         */
         console.log('UID verified as admin');
         let userData = data;
         console.log(userData);
@@ -193,9 +200,12 @@ exports.deleteUser = functions.https.onCall(async (data, context) => {
                 return null;
             }
         });
+        /*
         if (!adminUids.includes(currentUid)) {
             throw new functions.https.HttpsError('unknown', "User is not admin user");
         }
+
+         */
         console.log('UID verified as admin');
 
         let uid = data.uid;

@@ -45,9 +45,13 @@
                                 <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                                 System Users
                             </a>
-                            <a id="bookings-btn" class="nav-link">
+                            <a id="m-bookings-btn" class="nav-link">
                                 <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
-                                Bookings
+                                Member Bookings
+                            </a>
+                            <a id="sp-bookings-btn" class="nav-link">
+                                <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                                Club Events
                             </a>
                         </div>
                     </div>
@@ -64,8 +68,13 @@
                         <ol class="breadcrumb mb-4">
                             <li class="breadcrumb-item active">Dashboard</li>
                         </ol>
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <button id="newClubEvent" type="button" class="btn btn-success">Create new Club Event</button>
+                            </div>
+                        </div>
                         <div class="card mb-4">
-                            <div class="card-header"><i class="fas fa-table mr-1"></i>System Users</div>
+                            <div class="card-header"><i class="fas fa-table mr-1"></i>System Information</div>
                             <div class="card-body">
                                 <div class="table-responsive" id="users-wrapper">
                                     <table class="table table-bordered" id="usersTable" width="100%" cellspacing="0">
@@ -93,13 +102,13 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <div class="table-responsive" id="booking-wrapper">
-                                    <table class="table table-bordered" id="bookingsTable" width="100%" cellspacing="0">
+                                <div class="table-responsive" id="m-booking-wrapper">
+                                    <table class="table table-bordered" id="m-bookingsTable" width="100%" cellspacing="0">
                                         <thead>
                                         <tr>
-                                            <th>UID</th>
+                                            <th>BID</th>
                                             <th>Name</th>
-                                            <th>Date</th>
+                                            <th>Date (YYYY/MM/DD)</th>
                                             <th>Time</th>
                                             <th>Type</th>
                                             <th>Actions</th>
@@ -107,11 +116,39 @@
                                         </thead>
                                         <tfoot>
                                         <tr>
-                                            <th>UID</th>
+                                            <th>BID</th>
                                             <th>Name</th>
-                                            <th>Date</th>
+                                            <th>Date (YYYY/MM/DD)</th>
                                             <th>Time</th>
                                             <th>Type</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                        </tfoot>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="table-responsive" id="sp-booking-wrapper">
+                                    <table class="table table-bordered" id="sp-bookingsTable" width="100%" cellspacing="0">
+                                        <thead>
+                                        <tr>
+                                            <th>SBID</th>
+                                            <th>Description</th>
+                                            <th>Start Date</th>
+                                            <th>End Date</th>
+                                            <th>Time</th>
+                                            <th>Period</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                        </thead>
+                                        <tfoot>
+                                        <tr>
+                                            <th>SBID</th>
+                                            <th>Description</th>
+                                            <th>Start Date</th>
+                                            <th>End Date</th>
+                                            <th>Time</th>
+                                            <th>Period</th>
                                             <th>Actions</th>
                                         </tr>
                                         </tfoot>
@@ -223,6 +260,127 @@
                 </div>
             </div>
         </div>
+        <div class="modal fade" id="special-booking-modal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 id="sp-booking-modal-header">Special Booking Header</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group row">
+                            <div class="col-sm-3 col-12 text-right">
+                                <h5>Event Description</h5>
+                            </div>
+                            <div class="col-sm-7 col-12">
+                                <input class="form-control" type="text" id="description-field">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-3 col-12 text-right">
+                                <h5>Start Date</h5>
+                            </div>
+                            <div class="col-sm-7 col-12">
+                                <input class="form-control" type="date" id="s-date-field">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-3 col-12 text-right">
+                                <h5>End Date</h5>
+                            </div>
+                            <div class="col-sm-7 col-12">
+                                <input class="form-control" type="date" id="e-date-field">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-3 col-12 text-right">
+                                <h5>Time</h5>
+                            </div>
+                            <div class="col-sm-7 col-12">
+                                <div class="dropdown">
+                                    <button class="btn btn-secondary dropdown-toggle" type="button" id="timeDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Select Time
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        <a data-time="6am" class="dropdown-item time-dropdown" href="#">6am-7am</a>
+                                        <a data-time="7am" class="dropdown-item time-dropdown" href="#">7am-8am</a>
+                                        <a data-time="8am" class="dropdown-item time-dropdown" href="#">8am-9am</a>
+                                        <a data-time="9am" class="dropdown-item time-dropdown" href="#">9am-10am</a>
+                                        <a data-time="10am" class="dropdown-item time-dropdown" href="#">10am-11am</a>
+                                        <a data-time="11am" class="dropdown-item time-dropdown" href="#">11am-12pm</a>
+                                        <a data-time="12pm" class="dropdown-item time-dropdown" href="#">12pm-1pm</a>
+                                        <a data-time="1pm" class="dropdown-item time-dropdown" href="#">1pm-2pm</a>
+                                        <a data-time="2pm" class="dropdown-item time-dropdown" href="#">2pm-3pm</a>
+                                        <a data-time="3pm" class="dropdown-item time-dropdown" href="#">3pm-4pm</a>
+                                        <a data-time="4pm" class="dropdown-item time-dropdown" href="#">4pm-5pm</a>
+                                        <a data-time="5pm" class="dropdown-item time-dropdown" href="#">5pm-6pm</a>
+                                        <a data-time="6pm" class="dropdown-item time-dropdown" href="#">6pm-7pm</a>
+                                        <a data-time="7pm" class="dropdown-item time-dropdown" href="#">7pm-8pm</a>
+                                        <a data-time="8pm" class="dropdown-item time-dropdown" href="#">8pm-9pm</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-3 col-12 text-right">
+                                <h5>Days</h5>
+                            </div>
+                            <div class="col-sm-7 col-12">
+                                <div class="custom-control custom-checkbox custom-control-inline">
+                                    <input type="checkbox" class="custom-control-input" id="sun">
+                                    <label class="custom-control-label" for="sun">Sun</label>
+                                </div>
+                                <div class="custom-control custom-checkbox custom-control-inline">
+                                    <input type="checkbox" class="custom-control-input" id="mon">
+                                    <label class="custom-control-label" for="mon">Mon</label>
+                                </div>
+                                <div class="custom-control custom-checkbox custom-control-inline">
+                                    <input type="checkbox" class="custom-control-input" id="tue">
+                                    <label class="custom-control-label" for="tue">Tue</label>
+                                </div>
+                                <div class="custom-control custom-checkbox custom-control-inline">
+                                    <input type="checkbox" class="custom-control-input" id="wed">
+                                    <label class="custom-control-label" for="wed">Wed</label>
+                                </div>
+                                <div class="custom-control custom-checkbox custom-control-inline">
+                                    <input type="checkbox" class="custom-control-input" id="thu">
+                                    <label class="custom-control-label" for="thu">Thu</label>
+                                </div>
+                                <div class="custom-control custom-checkbox custom-control-inline">
+                                    <input type="checkbox" class="custom-control-input" id="fri">
+                                    <label class="custom-control-label" for="fri">Fri</label>
+                                </div>
+                                <div class="custom-control custom-checkbox custom-control-inline">
+                                    <input type="checkbox" class="custom-control-input" id="sat">
+                                    <label class="custom-control-label" for="sat">Sat</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-3 col-12 text-right">
+                                <h5>Period</h5>
+                            </div>
+                            <div class="col-sm-7 col-12">
+                                <div class="dropdown">
+                                    <button class="btn btn-secondary dropdown-toggle" type="button" id="periodDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Select Period
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        <a class="dropdown-item period-dropdown-item" href="#">One-Time</a>
+                                        <a class="dropdown-item period-dropdown-item" href="#">Weekly</a>
+                                        <a class="dropdown-item period-dropdown-item" href="#">Bi-Weekly</a>
+                                        <a class="dropdown-item period-dropdown-item" href="#">Monthly</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="sp-b-save" class="btn btn-success" type="button">Save</button>
+                        <button id="sp-b-cancel" class="btn btn-outline-secondary" type="button">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <!-- update the version number as needed -->
         <script defer src="/__/firebase/7.14.6/firebase-app.js"></script>
         <!-- include only the Firebase features as you need -->
@@ -238,7 +396,8 @@
         <script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js" crossorigin="anonymous"></script>
         <script defer src="js/admin.js"></script>
         <script type="text/javascript">
-            jQuery('#booking-wrapper').hide();
+            jQuery('#m-booking-wrapper').hide();
+            jQuery('#sp-booking-wrapper').hide();
             jQuery('#edit-modal').modal('hide');
             jQuery('#delete-modal').modal('hide');
         </script>

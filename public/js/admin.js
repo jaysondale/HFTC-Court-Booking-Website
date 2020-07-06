@@ -6,6 +6,14 @@
     (function($) {
     "use strict";
 
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const typeConvert = {
+        'tennis': 'Tennis',
+        'pickle_front': 'Pickleball-Front',
+        'pickle_back': 'Pickleball-Back'
+    };
+
     // Add active state to sidbar nav links
     var path = window.location.href; // because the 'href' property of the DOM element is the absolute path
         $("#layoutSidenav_nav .sb-sidenav a.nav-link").each(function() {
@@ -20,25 +28,83 @@
         $("body").toggleClass("sb-sidenav-toggled");
     });
 
+
+        let enableNewEventBtn = function() {
+            $("#newClubEvent").click(function() {
+                $('#special-booking-modal').modal('show');
+                $('#sp-booking-modal-header').text('Create New Club Event');
+                $('#sp-b-save').click(async function() {
+                    // Get info from fields
+                    let description = $('#description-field').val();
+                    let startDate = $('#s-date-field').val();
+                    let endDate = $('#e-date-field').val();
+                    let startTime = $('#timeDropdown').text();
+                    startTime = startTime.split('-')[0];
+                    let sun = $('#sun').prop('checked');
+                    let mon = $('#mon').prop('checked');
+                    let tue = $('#tue').prop('checked');
+                    let wed = $('#wed').prop('checked');
+                    let thu = $('#thu').prop('checked');
+                    let fri = $('#fri').prop('checked');
+                    let sat = $('#sat').prop('checked');
+                    let period = $("#periodDropdown").text();
+                    await firebase.firestore().collection('special_bookings_revised').add({
+                        bookingDescription: description,
+                        startDate: startDate,
+                        endDate: endDate,
+                        startTime: startTime,
+                        sun: sun,
+                        mon: mon,
+                        tue: tue,
+                        wed: wed,
+                        thu: thu,
+                        fri: fri,
+                        sat: sat,
+                        period: period
+                    }).then(function() {
+                        $('#special-booking-modal').modal('hide');
+                        // Refresh
+                    })
+                })
+            })
+        };
+        $('#special-booking-modal').on('show.bs.modal', function() {
+            $('.time-dropdown').click(function() {
+                $('#timeDropdown').text($(this).text());
+            });
+            $('.period-dropdown-item').click(function() {
+                $('#periodDropdown').text($(this).text());
+            })
+        });
+        enableNewEventBtn();
     // Activate menu buttons
         $("#users-btn").click(() => {
             $('#users-wrapper').show();
-            $('#booking-wrapper').hide();
+            $('#m-booking-wrapper').hide();
+            $('#sp-booking-wrapper').hide();
         });
 
-        $("#bookings-btn").click(() => {
+        $("#m-bookings-btn").click(() => {
             $('#users-wrapper').hide();
-            $('#booking-wrapper').show();
+            $('#m-booking-wrapper').show();
+            $('#sp-booking-wrapper').hide();
+        });
+
+        $('#sp-bookings-btn').click(() => {
+            $('#users-wrapper').hide();
+            $('#m-booking-wrapper').hide();
+            $('#sp-booking-wrapper').show();
         });
 
         // Activate data table
         let dtable = $('#usersTable').DataTable();
-        let bookingsTable = $('#bookingsTable').DataTable();
+        let mBookingsTable = $('#m-bookingsTable').DataTable();
+        let spBookingsTable = $('#sp-bookingsTable').DataTable();
 
 
         // Populate data table
         let functions = firebase.functions();
-        functions.useFunctionsEmulator('http://localhost:5001');
+        // functions.useFunctionsEmulator('http://localhost:5001');
 
         let loadUserData = async function() {
             console.log("Calling cloud function");
@@ -46,7 +112,7 @@
             let userData = users.data;
 
             dtable.clear();
-            let actionButtons = `<div class='btn-group'><a class="btn btn-outline-warning edit">Edit</a><a class="btn btn-danger delete">Delete</a></div>`;
+            let actionButtons = `<div class='btn-group'><button type="button" class="btn btn-outline-warning edit">Edit</button><button type="button" class="btn btn-danger delete">Delete</button></div>`;
             userData.forEach(user => {
                 dtable.row.add([user['uid'], user['displayName'], user['email'], (user['disabled'] ? 'Disabled' : 'Enabled'), user['accountType'], actionButtons]).draw();
             });
@@ -152,11 +218,78 @@
             };
             enableActions();
             dtable.on('draw', enableActions);
-
-
         };
+
+        let loadMemberBookingsData = async function() {
+            let db = firebase.firestore();
+            // Get user displayNames
+            let displayNames = await db.collection('users').get().then(querySnap => {
+                let users = {};
+                querySnap.forEach(snap => {
+                    let userData = snap.data();
+                    let uid = snap.id;
+                    users[uid] = userData['displayName'];
+                });
+                return users;
+            });
+            await db.collection('bookings').get().then(querySnap => {
+                if (querySnap) {
+                    let actionButtons = `<button type="button" class="btn btn-danger booking-delete">Delete</button>`;
+                    querySnap.forEach(snap => {
+                        let data = snap.data();
+                        let bid = snap.id;
+                        mBookingsTable.row.add([
+                            bid,
+                            (data['user'] in displayNames ? displayNames[data['user']] : data['user']),
+                            `${data['year']}/${data['month'] + 1}/${data['day']}`,
+                            data['startTime'],
+                            typeConvert[data['bookingType']],
+                            actionButtons
+                        ]).draw();
+                    });
+                    // Enable delete buttons
+                    let enableActions = function() {
+                        $('.booking-delete').click(async function() {
+                            // Get booking id
+                            let tr = $(this).parent().parent();
+                            let bid = mBookingsTable.cell(tr, 0).data();
+                            console.log(`Deleting booking: ${bid}`);
+                            // Delete booking
+                            await db.collection('bookings').doc(bid).delete().then(async function() {
+                                await loadMemberBookingsData();
+                            });
+
+                        })
+                    };
+                    enableActions();
+                    mBookingsTable.on('draw', enableActions);
+
+                }
+            })
+        };
+        let loadSpecialBookingsData = async function() {
+            let db = firebase.firestore();
+            await db.collection('special_bookings_revised').get().then(querySnap => {
+                querySnap.forEach(snap => {
+                    let sbid = snap.id;
+                    let bData = snap.data();
+                    let actions = `action buttons`;
+                    spBookingsTable.row.add([
+                        sbid,
+                        bData['bookingDescription'],
+                        bData['startDate'],
+                        bData['endDate'],
+                        bData['startTime'],
+                        bData['period'],
+                        actions
+                    ])
+                })
+            })
+        };
+
         (async () => {
             await loadUserData();
+            await loadMemberBookingsData();
         })();
 
 })(jQuery);

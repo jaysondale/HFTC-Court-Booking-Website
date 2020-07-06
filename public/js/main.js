@@ -143,12 +143,17 @@
         
 
         // Display description field if user is admin
-        let field = $('#booking-description-field');
+        /*
+
         if (isAdmin) {
             $(field).show();
         } else {
-            $(field).hide();
+
         }
+
+         */
+        let field = $('#booking-description-field');
+        $(field).hide();
 
         console.log(isAdmin);
 
@@ -444,7 +449,7 @@
         let db = firebase.firestore();
         let user = firebase.auth().currentUser;
 
-        if (!isAdmin) {
+        if (!isAdmin || isAdmin) {
             db.collection("bookings").add({
                 user: user.uid,
                 bookingType: booking.b_type,
