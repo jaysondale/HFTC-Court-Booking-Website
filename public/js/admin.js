@@ -28,43 +28,50 @@
         $("body").toggleClass("sb-sidenav-toggled");
     });
 
+        let saveSpecialBooking = async function(sbid) {
+            // Get info from fields
+            let description = $('#description-field').val();
+            let startDate = $('#s-date-field').val();
+            let endDate = $('#e-date-field').val();
+            let startTime = $('#timeDropdown').text();
+            startTime = startTime.split('-')[0];
+            let sun = $('#sun').prop('checked');
+            let mon = $('#mon').prop('checked');
+            let tue = $('#tue').prop('checked');
+            let wed = $('#wed').prop('checked');
+            let thu = $('#thu').prop('checked');
+            let fri = $('#fri').prop('checked');
+            let sat = $('#sat').prop('checked');
+            let period = $("#periodDropdown").text();
+            let bookingData = {
+                bookingDescription: description,
+                startDate: startDate,
+                endDate: endDate,
+                startTime: startTime,
+                sun: sun,
+                mon: mon,
+                tue: tue,
+                wed: wed,
+                thu: thu,
+                fri: fri,
+                sat: sat,
+                period: period
+            };
+            if (!sbid) {
+                await firebase.firestore().collection('special_bookings_revised').add(bookingData)
+            } else {
+                await firebase.firestore().collection('special_bookings_revised').doc(sbid).set(bookingData)
+            }
 
+        };
         let enableNewEventBtn = function() {
             $("#newClubEvent").click(function() {
                 $('#special-booking-modal').modal('show');
                 $('#sp-booking-modal-header').text('Create New Club Event');
                 $('#sp-b-save').click(async function() {
-                    // Get info from fields
-                    let description = $('#description-field').val();
-                    let startDate = $('#s-date-field').val();
-                    let endDate = $('#e-date-field').val();
-                    let startTime = $('#timeDropdown').text();
-                    startTime = startTime.split('-')[0];
-                    let sun = $('#sun').prop('checked');
-                    let mon = $('#mon').prop('checked');
-                    let tue = $('#tue').prop('checked');
-                    let wed = $('#wed').prop('checked');
-                    let thu = $('#thu').prop('checked');
-                    let fri = $('#fri').prop('checked');
-                    let sat = $('#sat').prop('checked');
-                    let period = $("#periodDropdown").text();
-                    await firebase.firestore().collection('special_bookings_revised').add({
-                        bookingDescription: description,
-                        startDate: startDate,
-                        endDate: endDate,
-                        startTime: startTime,
-                        sun: sun,
-                        mon: mon,
-                        tue: tue,
-                        wed: wed,
-                        thu: thu,
-                        fri: fri,
-                        sat: sat,
-                        period: period
-                    }).then(function() {
-                        $('#special-booking-modal').modal('hide');
-                        // Refresh
-                    })
+                    await saveSpecialBooking();
+                    $('#special-booking-modal').modal('hide');
+                    // Refresh
                 })
             })
         };
@@ -77,7 +84,7 @@
             })
         });
         enableNewEventBtn();
-    // Activate menu buttons
+        // Activate menu buttons
         $("#users-btn").click(() => {
             $('#users-wrapper').show();
             $('#m-booking-wrapper').hide();
@@ -172,7 +179,7 @@
                             email: email,
                             accountType: accountType,
                             disabled: disabled,
-                            newPassword: newPassword
+                            password: newPassword
                         }).then(async () => {
                             console.log('Update complete. Reloading table data');
                             $editModal.modal('hide');
@@ -267,22 +274,84 @@
                 }
             })
         };
+
+        let getDays = function(days) {
+            let output = "";
+            let dayList = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+            for (let i = 0; i < days.length; i++) {
+                if (days[i]) {
+                    if (output === "") {
+                        output += dayList[i]
+                    } else {
+                        output += `, ${dayList[i]}`
+                    }
+                }
+            }
+            return output;
+        };
+
+        // Enable actions
+        let enableSpecialBookingActions = function() {
+            $('.edit-sp').click(async function() {
+                // Get booking data
+                let tr = $(this).parent().parent().parent();
+                let sbid = spBookingsTable.cell(tr, 0).data();
+                let bookingData = await firebase.firestore().collection('special_bookings_revised').doc(sbid).get().then(snap => {
+                    return snap.data();
+                });
+
+                // Display special bookings modal
+                $('#special-booking-modal').modal('show');
+
+                // Populate fields in modal
+                $('#description-field').val(bookingData['bookingDescription']);
+                $("#s-date-field").val(bookingData['startDate']);
+                $("#e-date-field").val(bookingData['endDate']);
+                // Find time from list and select it
+                $('.time-dropdown').each((i, obj) => {
+                    let txt = $(obj).text();
+                    let spltTxt = txt.split('-');
+                    if (spltTxt[0] === bookingData['startTime']) {
+                        $("#timeDropdown").text(txt);
+                    }
+                });
+                // Check days
+                let dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+                dayKeys.forEach(key => {
+                    $(`#${key}`).prop('checked', bookingData[key])
+                });
+
+                // Update period
+                $("#periodDropdown").text(bookingData['period']);
+                $("#sp-b-save").click(async function() {
+                    await saveSpecialBooking(sbid);
+                    $("#special-booking-modal").modal('hide');
+                    // Refresh
+                })
+            })
+        };
+        spBookingsTable.on('draw', enableSpecialBookingActions);
+
+
+
         let loadSpecialBookingsData = async function() {
             let db = firebase.firestore();
             await db.collection('special_bookings_revised').get().then(querySnap => {
                 querySnap.forEach(snap => {
+                    console.log('Adding special booking');
                     let sbid = snap.id;
                     let bData = snap.data();
-                    let actions = `action buttons`;
+                    let actions = `<div class='btn-group'><button type="button" class="btn btn-outline-warning edit-sp">Edit</button><button type="button" class="btn btn-danger delete-sp">Delete</button></div>`;
                     spBookingsTable.row.add([
                         sbid,
                         bData['bookingDescription'],
                         bData['startDate'],
                         bData['endDate'],
                         bData['startTime'],
+                        getDays([bData['sun'], bData['mon'], bData['tue'], bData['wed'], bData['thu'], bData['fri'], bData['sat']]),
                         bData['period'],
                         actions
-                    ])
+                    ]).draw();
                 })
             })
         };
@@ -290,6 +359,7 @@
         (async () => {
             await loadUserData();
             await loadMemberBookingsData();
+            await loadSpecialBookingsData();
         })();
 
 })(jQuery);
