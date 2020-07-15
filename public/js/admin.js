@@ -64,14 +64,35 @@
             }
 
         };
+
+        // Firebase auth
+        firebase.auth().onAuthStateChanged(user => {
+            if (user) {
+                // Set username
+                $('#user-d-name').text(firebase.auth().currentUser.displayName);
+            } else {
+                window.location = 'index.html';
+            }
+        });
+
+        $('#backBtn').click(function() {
+            window.location = 'book.html'
+        });
+
         let enableNewEventBtn = function() {
             $("#newClubEvent").click(function() {
                 $('#special-booking-modal').modal('show');
                 $('#sp-booking-modal-header').text('Create New Club Event');
+                $('#sp-b-cancel').click(() => {
+                    $('#special-booking-modal').modal('hide');
+                });
                 $('#sp-b-save').click(async function() {
+                    $('.table-loading-overlay').show();
                     await saveSpecialBooking();
                     $('#special-booking-modal').modal('hide');
-                    // Refresh
+                    // Reload special events
+                    await loadSpecialBookingsData();
+                    $('.table-loading-overlay').hide();
                 })
             })
         };
@@ -89,18 +110,21 @@
             $('#users-wrapper').show();
             $('#m-booking-wrapper').hide();
             $('#sp-booking-wrapper').hide();
+            $('#newClubEvent').hide();
         });
 
         $("#m-bookings-btn").click(() => {
             $('#users-wrapper').hide();
             $('#m-booking-wrapper').show();
             $('#sp-booking-wrapper').hide();
+            $('#newClubEvent').hide();
         });
 
         $('#sp-bookings-btn').click(() => {
             $('#users-wrapper').hide();
             $('#m-booking-wrapper').hide();
             $('#sp-booking-wrapper').show();
+            $('#newClubEvent').show();
         });
 
         // Activate data table
@@ -183,7 +207,9 @@
                         }).then(async () => {
                             console.log('Update complete. Reloading table data');
                             $editModal.modal('hide');
-                            await loadUserData()
+                            $('.table-loading-overlay').show();
+                            await loadUserData();
+                            $('.table-loading-overlay').hide();
                         });
 
                     });
@@ -213,7 +239,9 @@
                             $('#delete-modal').modal('hide');
 
                             // Reload user data
+                            $('.table-loading-overlay').show();
                             await loadUserData();
+                            $('.table-loading-overlay').hide();
                         });
                     });
 
@@ -263,7 +291,9 @@
                             console.log(`Deleting booking: ${bid}`);
                             // Delete booking
                             await db.collection('bookings').doc(bid).delete().then(async function() {
+                                $('.table-loading-overlay').show();
                                 await loadMemberBookingsData();
+                                $('.table-loading-overlay').hide();
                             });
 
                         })
@@ -302,6 +332,9 @@
 
                 // Display special bookings modal
                 $('#special-booking-modal').modal('show');
+                $('#sp-b-cancel').click(() => {
+                    $('#special-booking-modal').modal('hide');
+                });
 
                 // Populate fields in modal
                 $('#description-field').val(bookingData['bookingDescription']);
@@ -324,9 +357,12 @@
                 // Update period
                 $("#periodDropdown").text(bookingData['period']);
                 $("#sp-b-save").click(async function() {
+                    $('.table-loading-overlay').show();
                     await saveSpecialBooking(sbid);
                     $("#special-booking-modal").modal('hide');
                     // Refresh
+                    await loadSpecialBookingsData();
+                    $('.table-loading-overlay').hide();
                 })
             })
         };
@@ -336,6 +372,7 @@
 
         let loadSpecialBookingsData = async function() {
             let db = firebase.firestore();
+            spBookingsTable.clear();
             await db.collection('special_bookings_revised').get().then(querySnap => {
                 querySnap.forEach(snap => {
                     console.log('Adding special booking');
@@ -357,9 +394,12 @@
         };
 
         (async () => {
+            console.log('changed');
+            $('.table-loading-overlay').show();
             await loadUserData();
             await loadMemberBookingsData();
             await loadSpecialBookingsData();
+            $('.table-loading-overlay').hide();
         })();
 
 })(jQuery);

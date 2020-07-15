@@ -5,11 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Muli">
+    <style>
+        body {
+            font-family: 'Muli', sans-serif;
+        }
+        .btn{
+            border-radius: 0 !important;
+        }
+    </style>
     <title>Haliburton Forest Tennis Club</title>
 </head>
 <body>
 
-<div class="container">
+<div class="container-fluid">
     <div class="row pb-4 pt-4">
         <div class="col-md-1 col-12">
             <a href="#">
@@ -31,6 +41,7 @@
         </div>
         <div class="btn-group col-md-3 ml-sm-auto ml-3 col-12">
             <button class="btn btn-info" type="button" id="view-btn">View Bookings</button>
+            <button class="btn btn-warning" type="button" id="admin-btn">Admin</button>
             <button class="btn btn-primary" type="button" id="sign-out-btn">Sign Out</button>
         </div>
 
@@ -56,7 +67,7 @@
                 <table id="booking-table" class="table text-center table-striped">
                     <thead class="thead-dark">
                         <tr>
-                            <th>&nbsp;</th>
+                            <th>&nbsp</th>
                             <th id="day-1">Monday</th>
                             <th id="day-2">Tuesday</th>
                             <th id="day-3">Wednesday</th>
@@ -67,54 +78,59 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <th class="th-time">6am - 7am</th>
+                        <tr class="position-relative">
+                            <th class="th-time align-middle">6am - 7am</th>
                         </tr>
                         <tr>
-                            <th class="th-time">7am - 8am</th>
+                            <th class="th-time align-middle">7am - 8am</th>
                         </tr>
                         <tr>
-                            <th class="th-time">8am - 9am</th>
+                            <th class="th-time align-middle">8am - 9am</th>
                         </tr>
                         <tr>
-                            <th class="th-time">9am - 10am</th>
+                            <th class="th-time align-middle">9am - 10am</th>
                         </tr>
                         <tr>
-                            <th class="th-time">10am - 11am</th>
+                            <th class="th-time align-middle">10am - 11am</th>
                         </tr>
                         <tr>
-                            <th class="th-time">11am - 12pm</th>
+                            <th class="th-time align-middle">11am - 12pm</th>
                         </tr>
                         <tr>
-                            <th class="th-time">12pm - 1pm</th>
+                            <th class="th-time align-middle">12pm - 1pm</th>
                         </tr>
                         <tr>
-                            <th class="th-time">1pm - 2pm</th>
+                            <th class="th-time align-middle">1pm - 2pm</th>
                         </tr>
                         <tr>
-                            <th class="th-time">2pm - 3pm</th>
+                            <th class="th-time align-middle">2pm - 3pm</th>
                         </tr>
                         <tr>
-                            <th class="th-time">3pm - 4pm</th>
+                            <th class="th-time align-middle">3pm - 4pm</th>
                         </tr>
                         <tr>
-                            <th class="th-time">4pm - 5pm</th>
+                            <th class="th-time align-middle">4pm - 5pm</th>
                         </tr>
                         <tr>
-                            <th class="th-time">5pm - 6pm</th>
+                            <th class="th-time align-middle">5pm - 6pm</th>
                         </tr>
                         <tr>
-                            <th class="th-time">6pm - 7pm</th>
+                            <th class="th-time align-middle">6pm - 7pm</th>
                         </tr>
                         <tr>
-                            <th class="th-time">7pm - 8pm</th>
+                            <th class="th-time align-middle">7pm - 8pm</th>
                         </tr>
                         <tr>
-                            <th class="th-time">8pm - 9pm</th>
+                            <th class="th-time align-middle">8pm - 9pm</th>
                         </tr>
                     </tbody>
                 </table>
             </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 text-center">
+            <p>Made by <a target="_blank" href="https://jaysondale.github.io">Jayson Dale</a>. Version 2.0.</p>
         </div>
     </div>
 </div>
@@ -169,7 +185,7 @@
                             <th>Date</th>
                             <th>Start Time</th>
                             <th>Type</th>
-                            <th>&nbsp;</th>
+                            <th>&nbsp</th>
                         </tr>
                         </thead>
                         <tbody id="view-table-body"></tbody>
@@ -198,6 +214,7 @@
 <script type="text/javascript">
     let FullHeight = function() {
         $('.full-height').css('height', $(window).height());
+        $('#admin-btn').hide();
         $(window).resize(() => {
             $('.full-height').css('height', $(window).height());
         });

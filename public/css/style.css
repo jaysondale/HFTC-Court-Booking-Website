@@ -11,8 +11,39 @@
 }
 
 .a-content {
+    min-height: 48px;
+    padding: 0;
     width: 100%;
+    min-width: 100px;
     font-weight: normal;
+    display: block;
+}
+
+.tennis-cell {
+    height: 100%;
+}
+
+.pickle-cell {
+    height: 50%;
+}
+
+.table .th-time {
+    min-width: 120px;
+    padding: 4px;
+}
+
+.a-content:hover {
+    border-color: lightgray;
+    border-width: thin;
+}
+
+.btn-block+.btn-block {
+    margin: 2px 0px;
+}
+
+.table td {
+    padding: 2px;
+    height: 48px;
 }
 
 .a-unavailable {

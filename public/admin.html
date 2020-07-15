@@ -10,30 +10,32 @@
         <link href="css/styles.css" rel="stylesheet" />
         <link href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css" rel="stylesheet" crossorigin="anonymous" />
         <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/js/all.min.js" crossorigin="anonymous"></script>
+        <style>
+            .table-loading-overlay {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                z-index: 10;
+                background-color: rgba(108,108,108,0.65);
+            }
+
+            .table-loading-inner {
+                width: 100%;
+                height: 100%;
+            }
+        </style>
     </head>
     <body class="sb-nav-fixed">
+    <div class="table-loading-overlay">
+        <div class="table-loading-inner d-flex align-items-center justify-content-center">
+            <div class="spinner-border" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+    </div>
         <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
-            <a class="navbar-brand" href="index.html">HF-TPB Admin</a><button class="btn btn-link btn-sm order-1 order-lg-0" id="sidebarToggle" href="#"><i class="fas fa-bars"></i></button
-            ><!-- Navbar Search-->
-            <form class="d-none d-md-inline-block form-inline ml-auto mr-0 mr-md-3 my-2 my-md-0">
-                <div class="input-group">
-                    <input class="form-control" type="text" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2" />
-                    <div class="input-group-append">
-                        <button class="btn btn-primary" type="button"><i class="fas fa-search"></i></button>
-                    </div>
-                </div>
-            </form>
-            <!-- Navbar-->
-            <ul class="navbar-nav ml-auto ml-md-0">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" id="userDropdown" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
-                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
-                        <a class="dropdown-item" href="#">Settings</a><a class="dropdown-item" href="#">Activity Log</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="login.html">Logout</a>
-                    </div>
-                </li>
-            </ul>
+            <a class="navbar-brand" href="index.html">HF-TPB Admin</a><button class="btn btn-link btn-sm order-1 order-lg-0" id="sidebarToggle" href="#"><i class="fas fa-bars"></i></button>
+            <button type="button" class="btn btn-primary ml-auto" id="backBtn">Exit Admin</button>
         </nav>
         <div id="layoutSidenav">
             <div id="layoutSidenav_nav">
@@ -57,7 +59,7 @@
                     </div>
                     <div class="sb-sidenav-footer">
                         <div class="small">Logged in as:</div>
-                        <p id="user-d-name">Jayson Dale</p>
+                        <p id="user-d-name"></p>
                     </div>
                 </nav>
             </div>
@@ -165,7 +167,7 @@
                 <footer class="py-4 bg-light mt-auto">
                     <div class="container-fluid">
                         <div class="d-flex align-items-center justify-content-between small">
-                            <div class="text-muted">Copyright &copy; Your Website 2019</div>
+                            <div class="text-muted">Copyright &copy; Haliburton Forest Tennis and Pickleball Club 2020</div>
                             <div>
                                 <a href="#">Privacy Policy</a>
                                 &middot;
@@ -367,10 +369,7 @@
                                         Select Period
                                     </button>
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                        <a class="dropdown-item period-dropdown-item" href="#">One-Time</a>
                                         <a class="dropdown-item period-dropdown-item" href="#">Weekly</a>
-                                        <a class="dropdown-item period-dropdown-item" href="#">Bi-Weekly</a>
-                                        <a class="dropdown-item period-dropdown-item" href="#">Monthly</a>
                                     </div>
                                 </div>
                             </div>
@@ -402,6 +401,7 @@
             jQuery('#sp-booking-wrapper').hide();
             jQuery('#edit-modal').modal('hide');
             jQuery('#delete-modal').modal('hide');
+            jQuery('#newClubEvent').hide();
         </script>
     </body>
 </html>

@@ -1,9 +1,10 @@
 (function($){
     let checkAdmin = async function() {
-        return firebase.firestore().collection('params').doc('admin').get().then(snap => {
+        return await firebase.firestore().collection('params').doc('admin').get().then(snap => {
             if (snap.exists){
                 let currentUID = firebase.auth().currentUser.uid;
-                return currentUID === snap.get('uid');
+                let uids = snap.get('uid');
+                return uids.includes(currentUID);
             } else {
                 return false;
             }
@@ -11,9 +12,6 @@
     };
 
     let isAdmin = false;
-    (async () => {
-        isAdmin = await checkAdmin();
-    })();
 
 
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -53,6 +51,17 @@
     firebase.auth().onAuthStateChanged(function(user) {
         if (user) {
             let displayName = user.displayName;
+            (async () => {
+                isAdmin = await checkAdmin();
+                if (isAdmin) {
+                    $("#admin-btn").show();
+                    $('#admin-btn').click(function() {
+                        window.location = 'admin.html'
+                    });
+                } else {
+                    $('#admin-btn').hide();
+                }
+            })();
             if (displayName === null) {
                 db.collection("users").doc(user.uid).get().then(snap => {
                     let data = snap.data();
@@ -101,6 +110,13 @@
             currentLabel.innerHTML = days[currentDate.getDay()] + " " + months[currentDate.getMonth()] + " " + currentDate.getDate();
             currentDate.setDate(currentDate.getDate() + 1);
         }
+    };
+
+    let isInPastStringDate = function(date, refDate) {
+        refDate = typeof refDate === 'undefined' ? new Date() : refDate;
+        let splitDate = date.split('-');
+        let dateFmt = new Date(splitDate[0], splitDate[1] - 1, splitDate[2]);
+        return refDate > dateFmt;
     };
 
     let isInPast = function (day, month, year, time) {
@@ -256,7 +272,7 @@
 
             // Display active bookings in modal
             activeBookings.forEach(booking => {
-                $('#view-table-body').append(`<tr class="booking-row"><th class="align-middle">${days[booking.dayOfWeek]} ${months[booking.month]} ${booking.day}</th><th class="align-middle">${booking.startTime}</th><th class="align-middle">${typeConvert[booking.b_type]}</th><th class="align-middle"><a class="btn btn-danger text-white delete-btn">&times;</a></th></tr>`);
+                $('#view-table-body').append(`<tr class="booking-row"><th class="align-middle">${days[booking.dayOfWeek]} ${months[booking.month]} ${booking.day}</th><th class="align-middle">${booking.startTime}</th><th class="align-middle">${typeConvert[booking.b_type]}</th><th class="align-middle"><button type="button" class="btn btn-danger text-white delete-btn">&times;</button></th></tr>`);
             });
 
             // Activate delete buttons
@@ -283,7 +299,7 @@
     $('#view-close').click(() => {$('#view-modal').modal('hide');});
 
     // Populate Availability
-    let PopulateAvailability = function() {
+    let PopulateAvailability = async function() {
         let num_cols = $('#booking-table > thead > tr').children().length - 2;
         let time_rows = $('#booking-table > tbody > tr');
         $('.content-cell').remove();
@@ -295,142 +311,166 @@
         // Retrieve current booking info
         let db = firebase.firestore();
 
-        // Get special bookings
-        db.collection("special_bookings").get().then(function(snap) {
-            let specialBookings = [];
-            snap.forEach(doc => {
-                specialBookings.push({
-                    day: doc.get("day"),
-                   month: doc.get("month"),
-                   year: doc.get("year"),
-                   startTime: doc.get("startTime"),
-                   description: doc.get("bookingDescription")
-                })
-            });
-
-            // Get user bookings
-            db.collection("bookings").get().then(function(querySnapshot){
-                let bookings = [];
-                querySnapshot.forEach(function(doc) {
-                   bookings.push({
-                       uid: doc.get("user"),
-                       day: doc.get("day"),
-                       month: doc.get("month"),
-                       year: doc.get("year"),
-                       startTime: doc.get("startTime"),
-                       b_type: doc.get("bookingType")
-                   })
+        let getBookings = async function(collectionRef) {
+            return await collectionRef.get().then(querySnap => {
+                let results = [];
+                querySnap.forEach(docSnap => {
+                    results.push(docSnap.data())
                 });
-    
-                time_rows.each((index, row) => {
-                    let time = $(row).find('.th-time').text().split(' ')[0];
-                    for (let i = 0; i<=num_cols; i++) {
-                        let currDate = new Date();
-                        currDate.setDate(firstDay.getDate() + i);
-    
-                        let day = currDate.getDate();
-                        let month = currDate.getMonth();
-                        let year = currDate.getFullYear();
-    
-                        if (isInPast(day, month, year, time)) {
-                            if (bookingType() === "tennis") {
-                                $(row).append('<th class="p-1 content-cell"><a class="btn btn-block a-content a-unavailable">Unavailable</a></th>');
-                            } else {
-                                $(row).append('<th class="p-1 content-cell"><a class="btn btn-block a-content a-unavailable">Unavailable</a><a class="btn btn-block a-content a-unavailable">Unavailable</a></th>');
-                            }
-                        } else {
-                            let filter = {
-                                day: day,
-                                month: month,
-                                year: year,
-                                startTime: time
-                            };
-                            let filterFunc = function(item) {
-                                for (let key in filter) {
-                                    if (item[key] === undefined || item[key] != filter[key]) {
-                                        return false;
-                                    }
-                                }
-                                return true;
-                            };
-                            let filteredBookings = bookings.filter(filterFunc);
+                return results;
+            })
+        };
 
-                            let filteredSpecialBookings = specialBookings.filter(filterFunc);
+        let specialBookings = await getBookings(db.collection('special_bookings_revised'));
+        let memberBookings = await getBookings(db.collection('bookings'));
 
-                            if (filteredSpecialBookings.length === 1){
-                                let spec_booking = filteredSpecialBookings[0];
-                                let bookedBtn = `<a class="btn btn-block a-content booking-special">${spec_booking.description}</a>`
+        // Load user info
+        let displayNames = await db.collection('users').get().then(querySnap => {
+            let users = {};
+            querySnap.forEach(snap => {
+                let userData = snap.data();
+                let uid = snap.id;
+                users[uid] = userData['displayName'];
+            });
+            return users;
+        });
 
-                                if (bookingType() === "tennis"){
-                                    $(row).append('<th class="p-1 content-cell">' + bookedBtn + '</th>');
-                                } else {
-                                    $(row).append('<th class="p-1 content-cell">' + bookedBtn + bookedBtn + '</th>');
-                                }
-                            } else {
-                                let currentUser = firebase.auth().currentUser;
-                                let available = '<a class="btn btn-block a-content a-available">Book</a>';
-                                let my_booking = '<a class="btn btn-block a-content a-my-booking">' + currentUser.displayName +'</a>';
-                                let booked = '<a class="btn btn-block a-content a-booked">Booked</a>';
-        
-                                let front_available = '<a class="btn btn-block a-content a-available">Front</a>';
-                                let back_available = '<a class="btn btn-block a-content a-available">Back</a>';
-        
-                                let usrUid = currentUser.uid;
-                                if (bookingType() === "tennis"){
-                                    if (filteredBookings.length === 0) {
-                                        $(row).append('<th class="p-1 content-cell">' + available + '</th>');
-                                    } else {
-                                        if (filteredBookings[0]["uid"] === usrUid) {
-                                            $(row).append('<th class="p-1 content-cell">' + my_booking + '</th>');
-                                        } else {
-                                            $(row).append('<th class="p-1 content-cell">' + booked + '</th>');
-                                        }
-                                    }
-                                } else {
-                                    let str = front_available + back_available;
-                                    if (filteredBookings.length === 1) {
-                                        let b_type = filteredBookings[0]['b_type'];
-                                        let bookedText = (filteredBookings[0]['uid'] === usrUid ? my_booking : booked);
-                                        if (b_type === 'pickle_front') {
-                                            str = bookedText + back_available;
-                                        } else if (b_type === 'pickle_back') {
-                                            str = front_available + bookedText;
-                                        } else if (b_type === 'tennis') {
-                                            str = bookedText + bookedText;
-                                        }
-                                    } else if (filteredBookings.length === 2) {
-                                        let frontBooked = booked;
-                                        let backBooked = booked;
-                                        filteredBookings.forEach(booking => {
-                                            if (booking['uid'] === usrUid) {
-                                                if (booking['b_type'] === 'pickle_front') {
-                                                    frontBooked = my_booking;
-                                                } else {
-                                                    backBooked = my_booking;
-                                                }
-                                            }
-                                        });
-                                        str = frontBooked + backBooked;
-                                    }
-                                    $(row).append('<th class="p-1 content-cell">' + str + "</th>")
-                                }
+        // Load everything else
+        for (let dayIndex = 0; dayIndex <= num_cols; dayIndex++) {
+            let currDate = new Date();
+            currDate.setDate(firstDay.getDate() + dayIndex);
+
+            let specialBookingObjects = {};
+
+            // Check special bookings
+
+            specialBookings.forEach(booking => {
+                // Check if day is in special booking range
+                if (isInPastStringDate(booking['startDate'], currDate)) {
+                    if (!isInPastStringDate(booking['endDate'], currDate)) {
+                        // Check period
+                        if (booking['period'] === 'Weekly') {
+                            // Check if day in question is one of the selected days
+                            if (booking[days[currDate.getDay()].toLowerCase()]) {
+                                // Display at start Time
+                                specialBookingObjects[booking['startTime']] = `<button type="button" class="btn btn-block a-content booking-special">${booking['bookingDescription']}</button>`
                             }
                         }
                     }
-                });
-    
-                // Hide loader
-                $('.table-loading-overlay').hide();
-    
-                // Activate buttons
-                $('.a-available').click(function() {
-                    $(this).addClass("cell-selected");
-                    displayBookingModal();
-                });
-            }).catch(e => {
-                console.log(e);
+                }
             });
-        })
+
+            let displayButton = function (row, btnText) {
+                if (bookingType() === "tennis") {
+                    $(row).append(`<td class="content-cell">${btnText}</td>`)
+                } else {
+                    $(row).append(`<td class="content-cell">${btnText}${btnText}</td>`)
+                }
+            };
+
+            // Iterate through times
+            time_rows.each((index, row) => {
+                let startTime = $(row).find('.th-time').text().split(' ')[0];
+                // If on first day, check for unavailable times
+                let timeUsed = false;
+                if (dayIndex === 0) {
+                    if (isInPast(currDate.getDate(), currDate.getMonth(), currDate.getFullYear(), startTime)) {
+                        displayButton(row, `<button type="button" class="btn btn-block a-content a-unavailable">Unavailable</button>`);
+                        timeUsed = true;
+                    }
+                }
+                if (!timeUsed) {
+                    // Check special booking
+                    if (startTime in specialBookingObjects) {
+                        displayButton(row, specialBookingObjects[startTime]);
+                        timeUsed = true;
+                    } else {
+                        // Check member bookings
+                        let selectedBookings = [];
+                        for (let i = 0; i < memberBookings.length; i++) {
+                            let booking = memberBookings[i];
+                            if (booking['year'] === currDate.getFullYear()) {
+                                if (booking['month'] === currDate.getMonth()) {
+                                    if (booking['day'] === currDate.getDate()) {
+                                        if (booking['startTime'] === startTime) {
+                                            // Display booking
+                                            selectedBookings.push(booking);
+                                            timeUsed = true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        let booking0Class = 'a-booked';
+                        let booking1Class = 'a-booked';
+                        if (selectedBookings.length > 0) {
+                            booking0Class = selectedBookings[0]['user'] === firebase.auth().currentUser.uid ? 'a-my-booking' : 'a-booked';
+                            if (selectedBookings.length > 1) {
+                                booking1Class = selectedBookings[1]['user'] === firebase.auth().currentUser.uid ? 'a-my-booking' : 'a-booked';
+                            }
+                        }
+                        if (selectedBookings.length === 1) {
+                            if (selectedBookings[0]['bookingType'] === 'tennis') {
+                                displayButton(row, `<button type="button" class="btn btn-block a-content ${booking0Class}">${displayNames[selectedBookings[0]['user']]}</button>`)
+                            } else if (selectedBookings[0]['bookingType'] === 'pickle_front') {
+                                if (bookingType() === 'pickle') {
+                                    $(row).append(`<td class="content-cell"><button type="button" class="btn btn-block a-content ${booking0Class}">${displayNames[selectedBookings[0]['user']]}</button><button type="button" class="btn btn-block a-content a-available">Back</button></td>`)
+                                } else {
+                                    $(row).append(`<td class="content-cell"><button type="button" class="btn btn-block a-content ${booking0Class}">${displayNames[selectedBookings[0]['user']]}</button></td>`)
+                                }
+
+                            } else {
+                                if (bookingType() === 'pickle') {
+                                    $(row).append(`<td class="content-cell"><button type="button" class="btn btn-block a-content a-available">Front</button><button type="button" class="btn btn-block a-content ${booking0Class}">${displayNames[selectedBookings[0]['user']]}</button></td>`)
+                                } else {
+                                    $(row).append(`<td><button type="button" class="btn btn-block a-content ${booking0Class}">${displayNames[selectedBookings[0]['user']]}</button></td>`)
+                                }
+
+                            }
+
+                        } else if (selectedBookings.length === 2) {
+                            if (bookingType() === 'tennis') {
+                                let bookingClass = booking0Class === 'a-my-booking' || booking1Class === 'a-my-booking' ? 'a-my-booking' : 'a-booked';
+                                $(row).append(`<td class="content-cell"><button type="button" class="btn btn-block a-content ${bookingClass}">Booked</button></td>`)
+                            } else {
+                                if (selectedBookings[0]['bookingType'] === 'pickle_front') {
+                                    $(row).append(`<td class="content-cell"><button type="button" class="btn btn-block a-content ${booking0Class}">${displayNames[selectedBookings[0]['user']]}</button><button type="button" class="btn btn-block a-content ${booking1Class}">${displayNames[selectedBookings[1]['user']]}</button></td>`)
+                                } else {
+                                    $(row).append(`<td class="content-cell"><button type="button" class="btn btn-block a-content ${booking1Class}">${displayNames[selectedBookings[1]['user']]}</button><button type="button" class="btn btn-block a-content ${booking0Class}">${displayNames[selectedBookings[0]['user']]}</button></td>`)
+                                }
+                            }
+
+                        }
+                    }
+                }
+                // If no booking was placed, fill with available buttons
+                if (!timeUsed) {
+                    if (bookingType() === 'tennis') {
+                        $(row).append(`<td class="content-cell"><button type="button" class="btn btn-block a-content a-available">Book</button></td>`);
+                    } else {
+                        $(row).append(`<td class="content-cell"><button type="button" class="btn btn-block a-content a-available">Front</button><button type="button" class="btn btn-block a-content a-available">Back</button></td>`);
+                    }
+
+                }
+            });
+
+            // Hide loader
+            $('.table-loading-overlay').hide();
+
+            // Add height class
+            console.log('updated');
+            if (bookingType() === 'tennis') {
+                $('.a-content').addClass('tennis-cell');
+            } else {
+                $('.a-content').addClass('pickle-cell');
+            }
+
+            // Activate buttons
+            $('.a-available').click(function() {
+                $(this).addClass("cell-selected");
+                displayBookingModal();
+            });
+        }
     };
 
     $('#book-tennis').click(PopulateAvailability);
