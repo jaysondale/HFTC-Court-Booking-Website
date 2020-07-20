@@ -208,7 +208,7 @@
                 });
 
                 if (hours > lim) {
-                    displayAlert('Unable to book court: You have already booked ' + lim + 'hrs of court time today!', false)
+                    displayAlert('Unable to book court: You have already booked ' + lim + 'hrs of court time that day!', false)
                 } else {
                     let b_type = "tennis";
                     if (bookingType() === 'pickle') {

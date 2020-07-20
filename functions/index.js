@@ -105,18 +105,19 @@ exports.updateUser = functions.https.onCall(async (data, context) => {
         }
 
          */
+
         console.log('UID verified as admin');
         let userData = data;
         console.log(userData);
 
         // Update user record
-        if (userData.newPassword) {
+        if (userData.password) {
             console.log('Updating with new password');
             await admin.auth().updateUser(userData.uid, {
                 email: userData.email,
                 displayName: userData.displayName,
                 disabled: userData.disabled,
-                password: userData.newPassword
+                password: userData.password
             }).then(() => {
                 console.log('User record updated')
             }).catch(function(error) {

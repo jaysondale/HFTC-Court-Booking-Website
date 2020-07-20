@@ -86,16 +86,17 @@
                 $('#sp-b-cancel').click(() => {
                     $('#special-booking-modal').modal('hide');
                 });
-                $('#sp-b-save').click(async function() {
+                $('#sp-b-save').off('click').on('click', async function() {
                     $('.table-loading-overlay').show();
                     await saveSpecialBooking();
                     $('#special-booking-modal').modal('hide');
                     // Reload special events
                     await loadSpecialBookingsData();
                     $('.table-loading-overlay').hide();
-                })
+                });
             })
         };
+
         $('#special-booking-modal').on('show.bs.modal', function() {
             $('.time-dropdown').click(function() {
                 $('#timeDropdown').text($(this).text());
@@ -142,7 +143,7 @@
             let users = await functions.httpsCallable('getUserData').call({});
             let userData = users.data;
 
-            dtable.clear();
+            dtable.clear().draw();
             let actionButtons = `<div class='btn-group'><button type="button" class="btn btn-outline-warning edit">Edit</button><button type="button" class="btn btn-danger delete">Delete</button></div>`;
             userData.forEach(user => {
                 dtable.row.add([user['uid'], user['displayName'], user['email'], (user['disabled'] ? 'Disabled' : 'Enabled'), user['accountType'], actionButtons]).draw();
@@ -257,6 +258,7 @@
 
         let loadMemberBookingsData = async function() {
             let db = firebase.firestore();
+            mBookingsTable.clear().draw();
             // Get user displayNames
             let displayNames = await db.collection('users').get().then(querySnap => {
                 let users = {};
@@ -356,14 +358,16 @@
 
                 // Update period
                 $("#periodDropdown").text(bookingData['period']);
-                $("#sp-b-save").click(async function() {
+
+                $('#sp-b-save').off('click').on('click', async function() {
                     $('.table-loading-overlay').show();
                     await saveSpecialBooking(sbid);
-                    $("#special-booking-modal").modal('hide');
-                    // Refresh
+                    $('#special-booking-modal').modal('hide');
+                    // Reload special events
                     await loadSpecialBookingsData();
                     $('.table-loading-overlay').hide();
-                })
+                });
+
             })
         };
         spBookingsTable.on('draw', enableSpecialBookingActions);
@@ -372,7 +376,8 @@
 
         let loadSpecialBookingsData = async function() {
             let db = firebase.firestore();
-            spBookingsTable.clear();
+            spBookingsTable.clear().draw();
+            console.log(spBookingsTable.count());
             await db.collection('special_bookings_revised').get().then(querySnap => {
                 querySnap.forEach(snap => {
                     console.log('Adding special booking');
@@ -390,11 +395,20 @@
                         actions
                     ]).draw();
                 })
+            });
+            // Enable actions
+            $('.delete-sp').click(async function() {
+                let tr = $(this).parent().parent().parent();
+                let sbid = spBookingsTable.cell(tr, 0).data();
+                await db.collection('special_bookings_revised').doc(sbid).delete();
+                // Reload
+                $('.table-loading-overlay').show();
+                await loadSpecialBookingsData();
+                $('.table-loading-overlay').hide();
             })
         };
 
         (async () => {
-            console.log('changed');
             $('.table-loading-overlay').show();
             await loadUserData();
             await loadMemberBookingsData();
